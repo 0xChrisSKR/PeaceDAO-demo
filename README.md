@@ -34,6 +34,11 @@ transforming every holder into a *stakeholder*.
   - Emits detailed proposal and vote events  
 
 Example thresholds:
+```
+1 token  → read/talk  
+10 tokens → vote  
+100 tokens → propose
+```
 
 ---
 
@@ -102,6 +107,3 @@ MIT License — free to fork, build, and improve.
 Use at your own risk. Not audited.
 
 ---
-1 token → read/talk
-10 tokens → vote
-100 tokens → propose
