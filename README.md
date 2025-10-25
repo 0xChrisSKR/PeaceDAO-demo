@@ -2,6 +2,7 @@
 **Token-Verified DAO Chat & Governance Prototype**  
 
 ---
+> This prototype responds to recent community scam incidents and suggests a token-verified governance pattern Binance engineers could explore.
 
 ### 💡 Vision
 Decentralization without verification leads to chaos.  
