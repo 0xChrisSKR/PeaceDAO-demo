@@ -8,34 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      # 檢查是否有 Node 專案
-      - name: Check for package.json
-        id: has_node
-        run: |
-          if [ -f package.json ]; then
-            echo "present=true" >> $GITHUB_OUTPUT
-          else
-            echo "present=false" >> $GITHUB_OUTPUT
-          fi
-
-      # 只有在有 package.json 的情況下才安裝依賴
       - uses: actions/setup-node@v4
-        if: steps.has_node.outputs.present == 'true'
         with:
           node-version: '20'
-
-      - name: Install deps
-        if: steps.has_node.outputs.present == 'true'
-        run: npm ci
-
-      # 只有在有 Hardhat 設定檔時才編譯
-      - name: Compile (Hardhat)
-        if: steps.has_node.outputs.present == 'true' && (hashFiles('hardhat.config.ts') != '' || hashFiles('hardhat.config.js') != '')
-        run: npx hardhat compile
-
-      # 基本檢查（總是會跑，不需要 Node）
-      - name: List contracts
-        run: |
-          echo "Contracts directory:"
-          ls -la contracts || true
+      - run: npm ci
+      - run: npx hardhat compile
