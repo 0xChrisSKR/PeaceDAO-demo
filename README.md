@@ -109,3 +109,4 @@ Use at your own risk. Not audited.
 
 ---
 **DISCLAIMER:** Conceptual prototype. Not audited. Not financial advice. Do NOT deploy to mainnet.
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
