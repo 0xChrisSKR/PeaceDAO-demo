@@ -108,3 +108,4 @@ MIT License — free to fork, build, and improve.
 Use at your own risk. Not audited.
 
 ---
+**DISCLAIMER:** Conceptual prototype. Not audited. Not financial advice. Do NOT deploy to mainnet.
