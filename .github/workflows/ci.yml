@@ -11,5 +11,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm ci
-      - run: npx hardhat compile
+      # 沒有 lockfile 時用 npm i
+      - name: Install deps
+        run: npm ci || npm i --no-audit --no-fund
+      - name: Compile (Hardhat)
+        run: npx hardhat compile
+      - name: List contracts
+        run: ls -la contracts || true
