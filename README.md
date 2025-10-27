@@ -1,3 +1,9 @@
+> **For Binance engineers**  
+> This repo demonstrates a **BNB-funded public treasury** governed by **$世界和平** token roles:  
+> 100 = Speak, 200k = Vote, 1M = Propose (stake 1M, refunded after the vote).  
+> All donation flows are **transparent on-chain** via `PeaceFund`.
+
+ 
 # 🕊️ PeaceDAO Demo  
 **Token-Verified DAO Chat & Governance Prototype**  
 
@@ -12,43 +18,47 @@ PeaceDAO explores a **token-verified governance framework** that gives identity,
 
 ---
 
-### 🧱 Core Concept
-A **token-verified DAO chat** where:
-- Holders can **read / speak**  
-- Mid-tier holders can **vote**  
-- Core contributors can **propose**
+### Core Concept
 
-Roles are automatically granted by **smart-contract verification** of ERC-20 token balances,  
-transforming every holder into a *stakeholder*.
+A token-verified **public good DAO** where:
+- **100 $世界和平** → speak in token-gated chat
+- **200,000 $世界和平** → vote on proposals
+- **1,000,000 $世界和平** → create proposals (requires staking 1,000,000; fully refunded after voting ends, regardless of result)
+
+All **donations are in BNB** to a public on-chain treasury (PeaceFund).  
+$世界和平 is strictly for **governance/identity** — not the donation currency.
 
 ---
 
 ### ⚙️ Smart Contract Overview
-**Contracts:**  
-- `PeaceGate.sol` — role verification & access control  
-  - Defines thresholds for reader / voter / proposer  
-  - Blacklist management for scam prevention  
-  - Emits events for bot monitoring and audit logs  
-- `PeaceDAO.sol` — proposal & voting logic  
-  - Snapshot-optional voting model  
-  - Simple quorum-based execution flag  
-  - Emits detailed proposal and vote events  
 
-Example thresholds:
-```
-1 token  → read/talk  
-10 tokens → vote  
-100 tokens → propose
-```
+- `PeaceGate.sol` — role verification based on ERC-20 balance  
+  - Thresholds (stored in smallest units): **100 / 200,000 / 1,000,000**
+  - Blacklist & adjustable thresholds (owner)
+  - `roleOf(address)` returns: NONE / SPEAKER / VOTER / PROPOSER
+
+- `PeaceDAO.sol` — proposals & voting
+  - **Propose**: PROPOSER must stake **1,000,000 $世界和平** (refunded after voting ends)
+  - **Vote**: VOTER role (≥ 200,000)
+  - **Quorum** configurable; on **pass**, DAO instructs treasury to send **BNB**
+  - **No slashing**: stake is **always refunded**, pass or fail
+
+- `PeaceFund.sol` — BNB-only treasury
+  - Receives donations in BNB (`receive()` / `donate()`)
+  - Executes `transferNative(to, amount, proposalId)` **only when DAO says so**
+  - `balance()` & events for full transparency (Dune/TheGraph ready)
 
 ---
 
-### 🧩 Current Features
-- ✅ On-chain role checking via `roleOf(address)`  
-- ✅ Proposal creation & voting  
-- ✅ Blacklist & admin control  
-- ✅ Event-based integration for bot verification (Discord/TG)  
-- ⚙️ Adjustable parameters for voting delay, period, quorum  
+### Current Features
+
+- ✅ On-chain role checking (`roleOf`) with **100/200k/1M** thresholds
+- ✅ Proposal creation with **1M stake** (auto-refund after vote ends)
+- ✅ BNB-only public treasury with on-chain logs
+- ✅ Adjustable params: thresholds, quorum, voting delay/period
+- ✅ Event logs for bot integrations (Discord/Guild token-gating)
+- ⚙️ Front-end is EIP-1193 **injected wallet–ready** (Binance Web3 Wallet, OKX, MetaMask…)
+
 
 ---
 
