@@ -1,87 +1,113 @@
-# World Peace DAO — Whitepaper v2 （雙語）
-
+# 🌍 World Peace DAO — Whitepaper v2  
 > “Peace needs protection — even on-chain.”  
-> 「和平需要被保護，鏈上也一樣。」
+> 「和平需要被保護，就算在區塊鏈上。」
 
-## 1. Overview / 總覽
-World Peace DAO（$世界和平）是一個建立在 BNB Chain 的去中心化公益治理模型：  
-所有捐贈與治理行為在鏈上透明記錄；經濟激勵來自「合理的營運金」與「交易手續費」，確保公益可持續而非只靠口號。
+---
 
-- 主治理代幣（治理用、非捐贈貨幣）：`0x4444def5cf226bf50aa4b45e5748b676945bc509`
-- Founder 營運收款錢包（Operations）：`0xD05d14e33D34F18731F7658eCA2675E9490A32D3`
+## 1. Vision & Mission 愿景與使命
 
-## 2. Roles & Thresholds / 角色與門檻
-- **Proposer 提案者**：需質押 **1,000,000 $世界和平**，投票結束後退還；另有 **+7 天鎖定**。
-- **Voter 投票者**：需質押 **200,000 $世界和平**，投票結束後退還。
-- **Voting Period 投票時長**：固定 **24 小時**。
-- **Anti-Sybil**：  
-  - **30 天冷卻期**：同一地址提案間隔 ≥ 30 天；  
-  - **90 天視窗限額**：每地址 90 天內最多 1 次提案；  
-  - **> US$5,000 守門**：當預計捐贈金額超過 5,000 美元，需 Verified Proposer（SBT/白名單）或多簽核可。
+**World Peace DAO ($世界和平)** aims to unite the global crypto community to support verified, transparent, and sustainable charity actions — powered by blockchain governance.  
 
-## 3. Donation & Treasury / 捐贈與金庫
-所有捐贈以 **BNB** 進入 **PeaceFund（原生幣金庫）**。  
-執行通過之提案時：  
-- **90%** → 直接匯給受贈者（Beneficiary）  
-- **10%** → 作為營運金（Ops）
+我們的目標是建立一個真正「由社群治理、透明公開」的鏈上慈善基金會，  
+讓每一筆善意都能被看見、被驗證、被永久保存。
 
-> 為了安全與會計清晰：  
-> - **原生幣（BNB）** → PeaceFund（native-only）  
-> - **ERC-20 手續費** → DaoVaultERC20（ERC-20 金庫）
+---
 
-## 4. Incentives / 激勵
-- **Verifier（捐贈驗證者）獎勵**：每次成功驗證，獲 **0.005%**（50ppm）**由 10% 營運金中支出**。  
-- **Community Managers（含 TG Admin）社群管理員獎勵**：  
-  - 資格：需持幣 **≥ 500,000**，且在任期內**質押**  
-  - 任命/罷免：**DAO 提案**產生；同時最多 `maxManagers`（預設 3 位）  
-  - 每次捐贈，管理員共享 **0.005%**（50ppm），同樣**由 10% 營運金中支出**（與 Verifier 不衝突、受贈 90% 不變）
+## 2. Core Principles 核心理念
+1. **Transparency** 透明化：  
+   所有捐贈、投票、資金流向皆公開記錄於區塊鏈。  
 
-> 營運金的剩餘部分撥給 Founder Operations（用於維運、審計、基礎設施）。
+2. **Decentralization** 去中心化：  
+   沒有單一個人或團體控制決策，一切依據 DAO 投票結果執行。  
 
-## 5. PeaceSwap Module / 交換模組
-為了「自我造血」，我們引入 **PeaceSwap Router**（不自建 DEX，包一層 Router）：  
-- **手續費：0.5%**（`feeBps=50`）  
-- **分潤**：**80% → DAO**、**20% → Founder**  
-- **費用去向**：  
-  - 原生手續費 → **PeaceFund**（DAO） & Founder  
-  - ERC-20 手續費 → **DaoVaultERC20**（DAO） & Founder  
-- 事件：`SwapWithFee(...)` 完整記錄來源、幣對、毛額、手續費、實得
+3. **Accountability** 可追溯：  
+   提案人與驗證者共同對最終捐贈負責，並將回饋記錄上鏈。  
 
-## 6. Telegram Governance / Telegram 治理
-我們**不做站內聊天室 dApp**，而是採用 **Telegram + token-gating**：  
-- **Public Group**：開放溝通  
-- **World Peace DAO Group**：持幣驗證（建議門檻 100），使用 **Collab.Land / Guild.xyz**  
-- 重要投票與提案仍以鏈上合約為準，TG 僅作為社群協調工具
+4. **Sustainability** 永續性：  
+   DAO 透過手續費收益與營運金維持長期穩定運作，而非短期捐款。
 
-## 7. Security Model / 安全模型
-- **合約層**：`ReentrancyGuard`、`SafeERC20`、`Pausable`、參數上限、CEI 流程  
-- **國庫層**：`AccessControl` 角色、**Timelock（≥24h）**、多簽（Gnosis Safe）、每日/單筆上限  
-- **資產隔離**：BNB → PeaceFund、ERC-20 → DaoVaultERC20；PeaceFund 提供 `sweepERC20()`（僅財務角色）  
-- **監控**：事件標準化（Dune/Defender/Forta 監控）、重要操作告警  
-- **流程**：測網 → 內部/第三方審計 → Bounty → 小額上線 → 放量
+---
 
-## 8. Parameters & Addresses / 參數與地址
-| Item | Value |
-|---|---|
-| Founder Ops Wallet | `0xD05d14e33D34F18731F7658eCA2675E9490A32D3` |
-| Governance Token ($世界和平) | `0x4444def5cf226bf50aa4b45e5748b676945bc509` |
-| Propose Stake | 1,000,000 |
-| Vote Stake | 200,000 |
-| Voting Period | 24h |
-| Proposer Extra Lock | 7d |
-| DAO Managers Min Stake | 500,000 |
-| Manager Cap | 3 |
-| Verifier Reward | 0.005% of donation (from ops) |
-| Managers Reward | 0.005% of donation (from ops, equally shared) |
-| Ops Split | PeaceSwap fee 80% DAO / 20% Founder |
-| PeaceSwap Fee | 0.5% |
+## 3. Governance Structure 治理架構
+| Role | Requirement | Description |
+|------|--------------|-------------|
+| **Proposer 提案者** | ≥ 1,000,000 $世界和平 | 可提出捐贈提案，需質押代幣至投票結束後退還。 |
+| **Voter 投票者** | ≥ 200,000 $世界和平 | 參與治理投票，決定提案是否通過。 |
+| **Verifier 驗證者** | ≥ 200,000 $世界和平 | 驗證捐贈結果，回報鏈上證據，可獲獎勵。 |
+| **Community Manager 社群管理員** | ≥ 500,000 $世界和平 | 管理 Telegram 社群、維護秩序，並分享營運激勵。 |
 
-## 9. Roadmap / 路線圖
-1) Testnet 合約與前端 Demo  
-2) 安全加固（Timelock、多簽、限額、監控）  
-3) 白名單公益機構名錄 + 高額提案保護  
-4) Dune Dashboard 與定期透明報告  
-5) Mainnet 小規模運行 → 放量
+🕒 **Voting Duration 投票時長**：固定 24 小時  
+⛓ **Anti-Sybil 機制**：每個地址提案間隔 ≥ 30 天，90 天內最多一次。
 
-## 10. Disclaimer / 免責
-本文件為開源研究與原型說明，不構成投資建議。任何主網部署前皆需完整審計與安全驗證。
+---
+
+## 4. Donation Flow 捐贈流程
+1️⃣ DAO 通過提案後，自動從金庫撥款。  
+2️⃣ **90%** → 直接捐贈給受贈單位  
+3️⃣ **10%** → DAO 營運金（包含維護、安全、審計）  
+　• 其中 0.005% 獎勵驗證者（Verifier）  
+　• 其中 0.005% 獎勵社群管理員（Community Managers）  
+　• 剩餘部分歸入 Founder 運營錢包  
+
+💰捐贈資金以 **BNB 為主要資產**，透過智能合約公開分配，確保無法被人為挪用。
+
+---
+
+## 5. Economic Model 經濟模型
+
+### PeaceSwap 手續費機制
+為了維持長期營運，World Peace DAO 推出 **PeaceSwap 模組**：  
+每次代幣交換收取 **0.5% 費用**，並分配如下：  
+- 80% → DAO Treasury（世界和平基金庫）  
+- 20% → Founder Operations（維運與基礎建設）
+
+### 金庫設計
+- 原生幣（BNB）收入 → **PeaceFund**  
+- 其他代幣（ERC-20）收入 → **DaoVaultERC20**  
+兩個金庫皆由 DAO 控制，且交易紀錄可於鏈上追溯。
+
+---
+
+## 6. Social Governance 社群治理
+World Peace DAO 採用 **Telegram + Token 驗證** 的方式運作：  
+- **公開群組**：自由交流、傳遞理念。  
+- **DAO 專屬群組**：需持幣驗證（建議 100 枚以上），使用 Collab.Land 或 Guild.xyz 驗證。  
+- 重大決策以智能合約投票為準，Telegram 僅作社群協調用途。
+
+---
+
+## 7. Security & Compliance 安全與合規
+- 所有合約皆通過 ReentrancyGuard、SafeERC20、Pausable 等機制防護。  
+- DAO 擁有多簽 (Multisig) 權限管理、時間鎖 (Timelock) 與交易上限控制。  
+- 每筆捐贈皆具唯一事件記錄，可供 Dune Analytics 或其他分析平台追蹤。  
+- 將持續與第三方審計機構合作，確保平台安全可靠。
+
+---
+
+## 8. Roadmap 發展藍圖
+1️⃣ 完成測試網 DAO & PeaceSwap 模組部署  
+2️⃣ 審計、Bug Bounty 與安全測試  
+3️⃣ 發佈正式白皮書 & 代幣治理提案  
+4️⃣ 與公益組織合作啟動第一筆捐贈  
+5️⃣ 建立「World Peace Dashboard」公開透明報表  
+
+---
+
+## 9. Key Addresses 主要地址
+| Name | Address |
+|------|----------|
+| Founder Operations | 0xD05d14e33D34F18731F7658eCA2675E9490A32D3 |
+| $世界和平 Token | 0x4444def5cf226bf50aa4b45e5748b676945bc509 |
+
+---
+
+## 10. Closing Thoughts 結語
+We believe that **peace is not just a vision, but a collective action**.  
+區塊鏈不該只是賺錢的工具，也能成為讓世界更好的力量。  
+
+**Every donation, every vote, every verification — builds a chain of peace.**
+
+---
+
+*Version 2.0 — Updated: 2025-10-28*  
+GitHub: [https://github.com/0xChrisSKR/PeaceDAO-demo](https://github.com/0xChrisSKR/PeaceDAO-demo)
