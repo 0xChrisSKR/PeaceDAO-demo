@@ -97,12 +97,29 @@ It’s not about centralization — it’s about *verified decentralization*.
 
 ---
 
+### 🚀 Deployment Setup / 部署設定
+- **EN:** Copy the sample environment file and fill in RPC/private key plus router details.
+  **中文：** 複製 `.env.example` 成 `.env`，填入 RPC、私鑰與基礎路由等資訊。
+  ```bash
+  cp .env.example .env
+  ```
+- **EN:** Review `deploy_config.json` for DAO thresholds, treasury minimums, and fee splits before deployment.
+  **中文：** 部署前請檢查 `deploy_config.json`，確認 DAO 門檻、金庫門檻與手續費分潤設定。
+- **EN:** Install dependencies and run the scripted deployment (prints contract addresses on success).
+  **中文：** 安裝依賴後執行部署腳本（成功後會輸出各合約地址）。
+  ```bash
+  npm install
+  npx hardhat run --network bsctest scripts/deploy.ts
+  ```
+- **EN:** Environment variables expose no secrets by default; `.env` is ignored by git.
+  **中文：** 預設環境變數檔不含敏感資訊，`.env` 也已加入 git 忽略清單。
+
 ### 🧰 For Developers
 If you’re a Solidity or Web3 engineer, feel free to:
-- Fork this repo  
-- Suggest security enhancements  
-- Prototype a front-end demo (token-gated chat)  
-- Submit pull requests or issues  
+- Fork this repo
+- Suggest security enhancements
+- Prototype a front-end demo (token-gated chat)
+- Submit pull requests or issues
 
 ---
 
