@@ -20,33 +20,36 @@ PeaceDAO explores a **token-verified governance framework** that gives identity,
 
 ### Core Concept
 
-A token-verified **public good DAO** where:
-- **100 $世界和平** → speak in token-gated chat
-- **200,000 $世界和平** → vote on proposals
-- **1,000,000 $世界和平** → create proposals (requires staking 1,000,000; fully refunded after voting ends, regardless of result)
+World Peace DAO v2 focuses on sustainable, transparent public-good funding. Key mechanics:
+- **Governance thresholds**: **1,000,000 $世界和平** to propose (stake refunded +7 天鎖定), **200,000 $世界和平** to vote, and **stake refunds** return at vote end.
+- **Anti-Sybil guardrails**: 30 天冷卻期 between proposals per address, 90 天視窗最多 1 次提案，and proposals exceeding **US$5,000** require a verified proposer or multisig hook approval.
+- **Donation routing**: All BNB donations flow to **PeaceFund**. Each executed proposal sends **90%** directly to the beneficiary and **10%** to operations for verifiers、community managers、以及 Founder 維運。
+- **Incentive splits** (from the 10% ops budget): verifiers earn **0.005%** per validated donation; community managers（含 Telegram admins，需 ≥500,000 並質押）共享 **0.005%**；beneficiary share 永遠維持 90%。
+- **PeaceSwap fees**: Router charges **0.5%** (`feeBps=50`)，其中 **80%** 回饋 DAO、**20%** 分潤 Founder；原生幣費用進 PeaceFund，ERC-20 手續費進 DaoVaultERC20。
 
-All **donations are in BNB** to a public on-chain treasury (PeaceFund).  
-$世界和平 is strictly for **governance/identity** — not the donation currency.
+詳見雙語版 [World Peace DAO — Whitepaper v2](docs/whitepaper.md)。
+
+> TODO: add fee flow diagram (`docs/diagrams/fee-flow.png`) when finalized.
 
 ---
 
 ### ⚙️ Smart Contract Overview
 
-- `PeaceGate.sol` — role verification based on ERC-20 balance  
-  - Thresholds (stored in smallest units): **100 / 200,000 / 1,000,000**
-  - Blacklist & adjustable thresholds (owner)
-  - `roleOf(address)` returns: NONE / SPEAKER / VOTER / PROPOSER
+- `PeaceGate.sol`
+  - Maintains governance thresholds for speaking (100)、voting (**200,000**)、proposing (**1,000,000** +7d lock)。
+  - Token balance checks power Telegram gating via Collab.Land / Guild.
 
-- `PeaceDAO.sol` — proposals & voting
-  - **Propose**: PROPOSER must stake **1,000,000 $世界和平** (refunded after voting ends)
-  - **Vote**: VOTER role (≥ 200,000)
-  - **Quorum** configurable; on **pass**, DAO instructs treasury to send **BNB**
-  - **No slashing**: stake is **always refunded**, pass or fail
+- `PeaceDAO.sol`
+  - Proposal stake refunds after the **24h** voting period; proposer stake remains locked an extra 7 天。
+  - Enforces 30d cooldown + 90d rolling cap per proposer and integrates high-value (>US$5k) guards for verified submitters or multisig review。
+  - On approval, triggers PeaceFund / DaoVaultERC20 payouts with baked-in splits for beneficiary 90%、ops 10%。
 
-- `PeaceFund.sol` — BNB-only treasury
-  - Receives donations in BNB (`receive()` / `donate()`)
-  - Executes `transferNative(to, amount, proposalId)` **only when DAO says so**
-  - `balance()` & events for full transparency (Dune/TheGraph ready)
+- `PeaceFund.sol` & `DaoVaultERC20.sol`
+  - PeaceFund holds native BNB; DaoVaultERC20 holds ERC-20 fees/donations。
+  - Operations distribution automates **0.005%** to verifiers and **0.005%** to community managers from the ops share while forwarding the remainder to the Founder operations wallet `0xD05d14e33D34F18731F7658eCA2675E9490A32D3`。
+
+- `PeaceSwapRouter.sol`
+  - Wraps existing DEX liquidity with a **0.5%** fee; routes **80%** of fees to DAO treasuries (native → PeaceFund, ERC-20 → DaoVaultERC20) and **20%** to Founder.
 
 ---
 
@@ -63,30 +66,21 @@ $世界和平 is strictly for **governance/identity** — not the donation curre
 ---
 
 ### 🔐 Security & Next Steps
-This repository is a **concept demo — not for mainnet deployment**.  
-Future improvements include:
-1. Snapshot-based voting integration (using `ERC20Snapshot` or Governor).  
-2. Role verification via multisig / timelock for additional security.  
-3. Expand event logging for audit trails (`RoleGranted`, `Blacklisted`, etc.).  
-4. Integrate with a treasury contract (`Gnosis Safe + Timelock`).  
-5. Re-entrancy and overflow protection with OpenZeppelin libraries.  
+World Peace DAO v2 強化鏈上與 off-chain 安全流程：
+1. 合約層：採用 `ReentrancyGuard`、`SafeERC20`、`Pausable`，搭配參數上限與 Checks-Effects-Interactions 流程。
+2. 國庫層：`AccessControl` 角色管理、**Timelock ≥24h**、Gnosis Safe 多簽、每日/單筆限額。
+3. Anti-Sybil：提案間隔 30 天、90 天視窗最多 1 件、超過 **US$5,000** 需 verified proposer 或多簽掛鉤。
+4. 監控：標準化事件（利於 Dune/Defender/Forta）及重要操作警示。
+5. 發布流程：測網 → 內/外部審計 → Bounty → 小額上線 → 放量。
 
 ---
 
 ### 🤖 Token-Gated Chat Integration
-**Goal:** connect contract logic to real community platforms.
-
-Suggested tools:
-- Discord / Telegram → [Collab.Land](https://collab.land/) or [Guild.xyz](https://guild.xyz/)  
-- Web gating → [Unlock Protocol](https://unlock-protocol.com/)  
-- Voting UI → [Snapshot](https://snapshot.org/) / [Tally](https://tally.xyz/)  
-- Treasury execution → [Gnosis Safe](https://gnosis-safe.io/)  
-
-**Bot verification logic (simplified):**
-1. User clicks *Verify* → bot requests wallet signature (no private key).  
-2. Bot checks `roleOf(address)` via RPC.  
-3. Grants appropriate chat role (reader / voter / proposer).  
-4. Periodically revalidates or on-demand before voting.
+站內不再提供聊天 dApp；社群協作以 **Telegram** 為核心：
+- **Public Group**：開放討論。
+- **Token-Gated Group**：透過 [Collab.Land](https://collab.land/) 或 [Guild.xyz](https://guild.xyz/) 以 $世界和平 餘額驗證（建議門檻 100）。
+- **管理獎勵**：通過 DAO 提案任命的 community managers / TG admins，在每筆捐贈中由 ops share 分潤 **0.005%**。
+- **投票與執行**：最終以鏈上 PeaceDAO 合約為準，Telegram 主要提供提醒、協調與守門機制。
 
 ---
 
