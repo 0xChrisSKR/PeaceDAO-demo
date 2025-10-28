@@ -19,6 +19,12 @@ Decentralization without verification leads to chaos. PeaceDAO proposes a balanc
 
 For setup and deployment, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
+## Frontend UI
+
+- **Framework:** Next.js app directory structure (see the `app/` folder) with styling that mirrors Tailwind's default system font stack.
+- **Offline-friendly typography:** Tailwind's default `font-sans` stack is applied locally so no Google Fonts are fetched during CI/CD builds.
+- **Build command:** `npm run build` compiles the smart contracts; no extra network calls are made for fonts, keeping the pipeline offline-friendly.
+
 ## Repositories & Documentation
 
 - [Smart Contracts (this repo)](https://github.com/peacebuild/PeaceDAO-demo)
