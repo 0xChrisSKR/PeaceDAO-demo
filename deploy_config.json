@@ -1,0 +1,11 @@
+{
+  "token": "0xYourWorldPeaceTokenOnTestnet",
+  "daoTreasury": "0xDAO_TREASURY_PLACEHOLDER",
+  "founderWallet": "0xFOUNDER_WALLET_PLACEHOLDER",
+  "swapParams": {
+    "feeBps": 50,
+    "daoShareBps": 8000,
+    "founderShareBps": 2000,
+    "underlyingRouter": "0xROUTER_PLACEHOLDER"
+  }
+}

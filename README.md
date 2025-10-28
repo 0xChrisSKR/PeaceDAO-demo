@@ -50,6 +50,35 @@ $世界和平 is strictly for **governance/identity** — not the donation curre
 
 ---
 
+### PeaceSwap 模組 / PeaceSwap Module
+
+`PeaceSwapRouter.sol` 與 `PeaceSwapFeeCollector.sol` 將 PeaceSwap 交易抽成標準化：
+
+- **0.5% swap fee**：每次透過 PeaceSwap 路由的兌換，都會預扣 0.5%
+- **80% → DAO 國庫 / Treasury**：支援原生幣與 ERC-20，直接匯入 DAO 的金庫地址
+- **20% → Founder Wallet**：營運維護費用，透明可查
+- **自動分潤**：Router 將費用送入 `PeaceSwapFeeCollector`，即刻按比例拆分
+- **DEX 相容**：剩餘 99.5% 金額透過底層 DEX（Pancake / Uniswap V2 類）完成交換
+
+Fee flow example / 費用示意：
+
+- User swaps 1,000 tokens → Router 扣除 5 代幣 (0.5%)
+- DAO gets 4 tokens (80%) → Founder gets 1 token (20%)
+- 995 tokens routed to underlying DEX → 用戶收到最終 output
+
+```
+User Wallet
+    │ swap 1,000 tokens
+    ▼
+PeaceSwapRouter ──▶ PeaceSwapFeeCollector (5 tokens)
+    │                                 │
+    │                                 ├── 4 tokens → DAO Treasury
+    └── 995 tokens → Underlying DEX   └── 1 token  → Founder Wallet
+                                         (ERC20 + Native 支援)
+```
+
+Router emits `SwapWithFee` event for analytics and accounting.
+
 ### Current Features
 
 - ✅ On-chain role checking (`roleOf`) with **100/200k/1M** thresholds
