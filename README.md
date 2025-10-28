@@ -19,6 +19,34 @@ Decentralization without verification leads to chaos. PeaceDAO proposes a balanc
 
 For setup and deployment, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
+## Testnet Deploy (Quick)
+
+1. `cp .env.example .env`
+2. Fill in `RPC_URL` and `PRIVATE_KEY` (use a testnet wallet only, never commit private keys).
+3. `npm ci`
+4. `npx hardhat compile`
+5. `npx hardhat run --network bsctest scripts/deploy_peacefund.ts`
+6. _(Optional)_ `npx hardhat run --network bsctest scripts/deploy_router.ts`
+
+Example output:
+
+```
+{ "network":"bsctest", "PeaceFund":"0x...." }
+{ "network":"bsctest", "PeaceSwapRouter":"0x...." }
+```
+
+## Bridge to Frontend
+
+- Copy addresses into `PeaceDAO-frontend/.env.local`:
+  - `NEXT_PUBLIC_PEACE_FUND=<PeaceFund>`
+  - `NEXT_PUBLIC_PEACE_SWAP_ROUTER=<PeaceSwapRouter or Pancake test router>`
+- Restart the frontend: `npm run dev`
+
+### Safety Notes
+
+- Never use a mainnet private key for testing; fund a dedicated testnet wallet only.
+- When preparing for mainnet, verify the deployed contracts on BscScan for transparency.
+
 ## Frontend UI
 
 - **Framework:** Next.js app directory structure (see the `app/` folder) with styling that mirrors Tailwind's default system font stack.
