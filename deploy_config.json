@@ -1,0 +1,26 @@
+{
+  "network": "bsctest",
+  "tokenAddress": "0x4444def5cf226bf50aa4b45e5748b676945bc509",
+  "founderWallet": "0xD05d14e33D34F18731F7658eCA2675E9490A32D3",
+  "daoParams": {
+    "voteThreshold": "200000",
+    "proposeThreshold": "1000000",
+    "votingPeriodSeconds": 86400,
+    "extraStakeLockSeconds": 604800,
+    "treasuryUsdMinForProposal": 5000
+  },
+  "fundParams": { "opsKeepBps": 1000 },
+  "swapParams": {
+    "feeBps": 50,
+    "daoShareBps": 8000,
+    "founderShareBps": 2000,
+    "underlyingRouter": "0xROUTER_PLACEHOLDER"
+  },
+  "verifyParams": { "rewardPpm": 50 },
+  "managerParams": {
+    "minStake": "500000",
+    "maxManagers": 3,
+    "termSeconds": 5184000,
+    "managerRewardPpm": 50
+  }
+}

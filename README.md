@@ -99,10 +99,40 @@ It’s not about centralization — it’s about *verified decentralization*.
 
 ### 🧰 For Developers
 If you’re a Solidity or Web3 engineer, feel free to:
-- Fork this repo  
-- Suggest security enhancements  
-- Prototype a front-end demo (token-gated chat)  
-- Submit pull requests or issues  
+- Fork this repo
+- Suggest security enhancements
+- Prototype a front-end demo (token-gated chat)
+- Submit pull requests or issues
+
+### 🚀 Deployment Setup / 部署設定
+
+**English**
+
+1. Copy the sample env file and fill in your RPC + private key:
+   ```bash
+   cp .env.example .env
+   ```
+2. Edit `.env` to provide `RPC_URL` and `PRIVATE_KEY`. You can also override addresses or fee splits (`TOKEN_ADDRESS`, `FOUNDER_WALLET`, `UNDERLYING_ROUTER`, `SWAP_FEE_BPS`, `DAO_SHARE_BPS`, `FOUNDER_SHARE_BPS`).
+3. Review `deploy_config.json` for default parameters (vote/proposal stakes, treasury floor, fee basis points, manager settings). Environment variables always override the JSON defaults at runtime.
+4. Run the Hardhat deploy script:
+   ```bash
+   npx hardhat run --network bsctest scripts/deploy.ts
+   ```
+5. The script deploys `PeaceFund`, `PeaceGate`, `PeaceDAO`, `PeaceSwapFeeCollector`, and `PeaceSwapRouter`, then prints every address so you can record them or plug into front-end tooling.
+
+**中文**
+
+1. 先複製範例環境檔並填入 RPC 與私鑰：
+   ```bash
+   cp .env.example .env
+   ```
+2. 編輯 `.env`，輸入 `RPC_URL` 與 `PRIVATE_KEY`，也可以依需求覆寫位址或分潤參數（如 `TOKEN_ADDRESS`、`FOUNDER_WALLET`、`UNDERLYING_ROUTER`、`SWAP_FEE_BPS`、`DAO_SHARE_BPS`、`FOUNDER_SHARE_BPS`）。
+3. 檢視 `deploy_config.json` 了解預設參數（投票/提案質押門檻、金庫最低美元值、手續費分配、管理員設定）；部署時若 `.env` 有設定，會優先生效。
+4. 執行 Hardhat 部署指令：
+   ```bash
+   npx hardhat run --network bsctest scripts/deploy.ts
+   ```
+5. 指令會部署 `PeaceFund`、`PeaceGate`、`PeaceDAO`、`PeaceSwapFeeCollector`、`PeaceSwapRouter`，並逐一列出合約位址，方便備註或提供前端使用。
 
 ---
 
