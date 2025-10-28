@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.*
+!.env.example
+artifacts/
+cache/
+typechain/
+coverage/
+coverage.json
+hardhat-cache
+hardhat-network-*
+.DS_Store
