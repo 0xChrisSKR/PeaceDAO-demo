@@ -45,6 +45,10 @@ contract PeaceDAO is Ownable {
     uint256 public votingPeriod = 43_200;  // ~1 day on 3s blocks
     uint256 public quorum;                // 同意票門檻（最小單位）
 
+    address[] private _communityManagers;
+    mapping(address => bool) public isCommunityManager;
+    uint256 public communityReward;      // 每位社群經理的獎勵（單位 wei）
+
     struct Proposal {
         address proposer;
         string  title;
@@ -68,6 +72,10 @@ contract PeaceDAO is Ownable {
     event VoteCast(uint256 indexed id, address indexed voter, bool support, uint256 weight);
     event ProposalExecuted(uint256 indexed id, bool passed);
     event StakeRefunded(uint256 indexed id, address indexed proposer, uint256 amount);
+    event CommunityManagersCleared();
+    event CommunityManagerAdded(address indexed manager);
+    event CommunityRewardUpdated(uint256 reward);
+    event CommunityManagerRewardPaid(uint256 indexed id, address indexed manager, uint256 amount);
 
     constructor(address token_, address gate_, address fund_) {
         require(token_ != address(0) && gate_ != address(0) && fund_ != address(0), "zero");
@@ -89,6 +97,33 @@ contract PeaceDAO is Ownable {
         votingPeriod = _period;
         quorum       = _quorum;
         emit ParamsUpdated(_stake, _delay, _period, _quorum);
+    }
+
+    function setCommunityManagers(address[] calldata managers) external onlyOwner {
+        for (uint256 i = 0; i < _communityManagers.length; ++i) {
+            address prev = _communityManagers[i];
+            isCommunityManager[prev] = false;
+        }
+        delete _communityManagers;
+        emit CommunityManagersCleared();
+
+        for (uint256 i = 0; i < managers.length; ++i) {
+            address manager = managers[i];
+            require(manager != address(0), "manager=0");
+            require(!isCommunityManager[manager], "duplicate manager");
+            isCommunityManager[manager] = true;
+            _communityManagers.push(manager);
+            emit CommunityManagerAdded(manager);
+        }
+    }
+
+    function getCommunityManagers() external view returns (address[] memory) {
+        return _communityManagers;
+    }
+
+    function setCommunityReward(uint256 reward) external onlyOwner {
+        communityReward = reward;
+        emit CommunityRewardUpdated(reward);
     }
 
     function getProposal(uint256 id) external view returns (
@@ -154,9 +189,26 @@ contract PeaceDAO is Ownable {
         p.executed = true;
         emit ProposalExecuted(id, passed);
 
-        // ✅ 提案通過才由金庫撥「BNB」；不通過則不撥款
-        if (passed && p.nativeAmount > 0) {
-            IFund(fund).transferNative(p.destination, p.nativeAmount, id);
+        if (passed) {
+            uint256 managersCount = _communityManagers.length;
+            uint256 rewardPerManager = communityReward;
+            uint256 totalReward = rewardPerManager * managersCount;
+            uint256 totalNeeded = p.nativeAmount + totalReward;
+            if (totalNeeded > 0) {
+                require(address(fund).balance >= totalNeeded, "fund insufficient");
+            }
+
+            if (p.nativeAmount > 0) {
+                IFund(fund).transferNative(p.destination, p.nativeAmount, id);
+            }
+
+            if (totalReward > 0) {
+                for (uint256 i = 0; i < managersCount; ++i) {
+                    address manager = _communityManagers[i];
+                    IFund(fund).transferNative(manager, rewardPerManager, id);
+                    emit CommunityManagerRewardPaid(id, manager, rewardPerManager);
+                }
+            }
         }
 
         // ✅ 無論通過/否決，一律退還質押

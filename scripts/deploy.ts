@@ -6,11 +6,18 @@ async function main() {
   const gate = await PeaceGate.deploy(token);
   await gate.waitForDeployment();
 
+  const PeaceFund = await ethers.getContractFactory("PeaceFund");
+  const fund = await PeaceFund.deploy();
+  await fund.waitForDeployment();
+
   const PeaceDAO = await ethers.getContractFactory("PeaceDAO");
-  const dao = await PeaceDAO.deploy(token, await gate.getAddress());
+  const dao = await PeaceDAO.deploy(token, await gate.getAddress(), await fund.getAddress());
   await dao.waitForDeployment();
 
+  await fund.setDAO(await dao.getAddress());
+
   console.log("PeaceGate:", await gate.getAddress());
+  console.log("PeaceFund:", await fund.getAddress());
   console.log("PeaceDAO :", await dao.getAddress());
 }
 
