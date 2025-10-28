@@ -25,8 +25,21 @@ A token-verified **public good DAO** where:
 - **200,000 $世界和平** → vote on proposals
 - **1,000,000 $世界和平** → create proposals (requires staking 1,000,000; fully refunded after voting ends, regardless of result)
 
-All **donations are in BNB** to a public on-chain treasury (PeaceFund).  
+All **donations are in BNB** to a public on-chain treasury (PeaceFund).
 $世界和平 is strictly for **governance/identity** — not the donation currency.
+
+### 👥 Community Managers & Sustainable Rewards
+
+- **Community Managers** are DAO-appointed contributors who stake **≥ 500,000 $世界和平** for a fixed term.
+- At most **3 managers** can be active simultaneously (default, configurable on deploy).
+- Appointment & removal are controlled by DAO proposals; staked tokens remain locked until the agreed term ends.
+- During each approved donation execution:
+  - **90%** of the donation is sent to the beneficiary (unchanged).
+  - **10%** is routed to operations. From this ops portion:
+    - **0.005%** of the original donation goes to the verifier who confirmed proof-of-donation evidence.
+    - **0.005%** of the original donation is split equally across all active Community Managers.
+    - The remaining ops funds flow to the operations wallet (founder address).
+- Example (`100 BNB` donation, 2 managers): `90 BNB` → beneficiary, `0.005 BNB` → verifier, `0.005 BNB` → managers (`0.0025 BNB` each), `9.99 BNB` → operations.
 
 ---
 
