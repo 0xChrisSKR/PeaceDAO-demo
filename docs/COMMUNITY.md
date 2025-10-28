@@ -2,8 +2,8 @@
 
 ## Telegram Governance / Telegram 治理
 
-- 公開社群 Official Community: [World Peace DAO 官方社群](https://t.me/WorldPeace_BNB)
-- 驗證治理社群 Verified DAO Hub: [World Peace DAO 驗證治理社群](https://t.me/+i-dpunM-luk1ZjRl)
+- Telegram: [Public Discussion Group 公開討論群](https://t.me/WorldPeace_BNB)
+- Telegram: [Verified DAO Group 驗證群組](https://t.me/+i-dpunM-luk1ZjRl)
 
 #### 🧩 Token Verification Setup / 持幣驗證設定
 - Verification Tool: Collab.Land or Guild.xyz  

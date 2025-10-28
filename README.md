@@ -27,9 +27,8 @@ For setup and deployment, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Community / 社群
 
-- Telegram: [World Peace DAO 公平治理社群](https://t.me/worldpeacefairlaunch)
-- Telegram: [World Peace DAO 官方社群 Official Community](https://t.me/WorldPeace_BNB)
-- Telegram: [World Peace DAO 驗證治理社群 Verified DAO Hub](https://t.me/+i-dpunM-luk1ZjRl)
+- Telegram: [Public Discussion Group 公開討論群](https://t.me/WorldPeace_BNB)
+- Telegram: [Verified DAO Group 驗證群組](https://t.me/+i-dpunM-luk1ZjRl)
 
 > ✅ Verified DAO members will automatically receive the **Peace Ambassador** role and may qualify for future **NFT badges** recognizing verified contributions.  
 > 經驗證的 DAO 成員將自動獲得 **和平大使 (Peace Ambassador)** 身分，並可獲得未來 DAO 發行的 **貢獻 NFT 勳章**。
