@@ -69,10 +69,15 @@
 ---
 
 ## 6. Social Governance 社群治理
-World Peace DAO 採用 **Telegram + Token 驗證** 的方式運作：  
-- **公開群組**：自由交流、傳遞理念。  
-- **DAO 專屬群組**：需持幣驗證（建議 100 枚以上），使用 Collab.Land 或 Guild.xyz 驗證。  
+World Peace DAO 採用 **Telegram + Token 驗證** 的方式運作：
+- **公開群組**：自由交流、傳遞理念。
+- **DAO 專屬群組**：需持幣驗證（建議 100 枚以上），使用 Collab.Land 或 Guild.xyz 驗證。
 - 重大決策以智能合約投票為準，Telegram 僅作社群協調用途。
+
+## Community / 社群
+
+- Telegram: [Public Discussion Group 公開討論群](https://t.me/WorldPeace_BNB)
+- Telegram: [Verified DAO Group 驗證群組](https://t.me/+i-dpunM-luk1ZjRl)
 
 ---
 
