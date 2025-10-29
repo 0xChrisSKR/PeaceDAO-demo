@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "build": "hardhat compile",
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "deploy:governance": "hardhat run scripts/deploy_governance.ts --network bsc",
+    "govern:params": "hardhat set-govern --network bsc"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",

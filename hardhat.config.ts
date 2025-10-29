@@ -1,12 +1,14 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import * as dotenv from "dotenv";
+import "./tasks/set-governance";
+
 dotenv.config();
 
 const config: HardhatUserConfig = {
   solidity: "0.8.20",
   networks: {
-    bscmain: {
+    bsc: {
       url: process.env.RPC_URL_MAINNET || "https://bsc-dataseed.binance.org",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     },
