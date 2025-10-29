@@ -1,0 +1,51 @@
+name: Deploy PeaceFund (BSC Mainnet)
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install
+        run: npm ci || npm i
+
+      - name: Export secrets to env
+        run: |
+          echo "RPC_URL_MAINNET=${{ secrets.RPC_URL_MAINNET }}" >> $GITHUB_ENV
+          echo "PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}" >> $GITHUB_ENV
+
+      - name: Compile
+        run: npx hardhat compile
+
+      - name: Deploy PeaceFund (BSC Mainnet)
+        id: deploy
+        run: |
+          OUT=$(npx hardhat run --network bscmain scripts/deploy_peacefund.ts)
+          echo "$OUT"
+          ADDR=$(echo "$OUT" | tail -n 1 | jq -r '.PeaceFund')
+          if [ -z "$ADDR" ] || [ "$ADDR" = "null" ]; then
+            echo "No address parsed from deploy output"; exit 1;
+          fi
+          echo "PEACEFUND_ADDR=$ADDR" >> $GITHUB_OUTPUT
+
+      - name: Write address into docs & deployments
+        run: |
+          mkdir -p deployments
+          NOW=$(date +%s)
+          echo "{ \"network\":\"bsc\", \"PeaceFund\":\"${{ steps.deploy.outputs.PEACEFUND_ADDR }}\", \"timestamp\": $NOW }" > deployments/bsc.json
+          sed -i "s/{{PEACEFUND_BSC}}/${{ steps.deploy.outputs.PEACEFUND_ADDR }}/g" docs/WHITEPAPER.md README.md || true
+
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: "docs/WHITEPAPER.md README.md deployments/bsc.json"
+          message: "chore: write BSC mainnet PeaceFund address ${{ steps.deploy.outputs.PEACEFUND_ADDR }}"
