@@ -5,6 +5,14 @@ World Peace DAO explores a token-verified governance framework that brings accou
 
 > *"Peace needs protection — even on-chain."* ☮️
 
+## Launch Links
+
+- PeaceFund (BSC): 0x071B1baf97D85a70A6Ca786E7Fe90b45f50464e5
+- Guild: https://guild.xyz/world-peace-dao
+- Whitepaper: [docs/WHITEPAPER.md](docs/WHITEPAPER.md)
+- Frontend Repo: https://github.com/peacebuild/PeaceDAO-frontend
+- Demo Repo: https://github.com/peacebuild/PeaceDAO-demo
+
 ## Vision
 
 Decentralization without verification leads to chaos. PeaceDAO proposes a balanced model where $世界和平 token thresholds safeguard participation while preserving openness and transparency for public-good funding.
@@ -43,14 +51,14 @@ Example output:
 
 ## Treasury / Addresses
 
-- BSC Mainnet PeaceFund: 0x6bfA2878fdC394D771349E29d423244d2Ec82af1
+- BSC Mainnet PeaceFund: 0x071B1baf97D85a70A6Ca786E7Fe90b45f50464e5
 - BSC Testnet PeaceFund: {{PEACEFUND_BSCTEST}}
 
 ## Mainnet deploy (BSC)
 
 1. Set the repository secrets `RPC_URL_MAINNET` and `PRIVATE_KEY`.
 2. Run **Actions → Deploy PeaceFund (BSC Mainnet)** to trigger the one-click deployment.
-3. After deployment, the workflow records the address in `deployments/bsc.json` and replaces `0x6bfA2878fdC394D771349E29d423244d2Ec82af1` in this README and `docs/WHITEPAPER.md`.
+3. After deployment, the workflow records the address in `deployments/bsc.json` and replaces `0x071B1baf97D85a70A6Ca786E7Fe90b45f50464e5` in this README and `docs/WHITEPAPER.md`.
 
 ## Bridge to Frontend
 
