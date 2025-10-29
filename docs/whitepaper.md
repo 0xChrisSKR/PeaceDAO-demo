@@ -36,13 +36,32 @@
 | **Verifier 驗證者** | ≥ 200,000 $世界和平 | 驗證捐贈結果，回報鏈上證據，可獲獎勵。 |
 | **Community Manager 社群管理員** | ≥ 500,000 $世界和平 | 管理 Telegram 社群、維護秩序，並分享營運激勵。 |
 
-🕒 **Voting Duration 投票時長**：固定 24 小時  
+🕒 **Voting Duration 投票時長**：固定 24 小時
 ⛓ **Anti-Sybil 機制**：每個地址提案間隔 ≥ 30 天，90 天內最多一次。
+
+### Governance (社群治理)
+
+#### Tiered Participation 門檻分級
+- Proposal Right 提案權 ≥ 1,000,000 tokens  
+- Voting Right 投票權 ≥ 200,000 tokens  
+- Validation Right 驗證權 ≥ 15,000 tokens  
+
+#### Passing Rules 通過規則
+- Quorum 法定人數: 10%  
+- Pass Ratio 贊成比: 60%  
+- Like Ratio 社群讚同比: 55%  
+
+#### Lifecycle 流程
+1️⃣ 提案：提交受贈地址與說明  
+2️⃣ 投票：附上理由  
+3️⃣ 驗證：社群按讚倒讚  
+4️⃣ 終結：滿足三項門檻  
+5️⃣ 執行：鏈上捐贈撥款
 
 ---
 
 ## 4. Donation Flow 捐贈流程
-1️⃣ DAO 通過提案後，自動從金庫撥款。  
+1️⃣ DAO 通過提案後，自動從金庫撥款。
 2️⃣ **90%** → 直接捐贈給受贈單位  
 3️⃣ **10%** → DAO 營運金（包含維護、安全、審計）  
 　• 其中 0.005% 獎勵驗證者（Verifier）  
