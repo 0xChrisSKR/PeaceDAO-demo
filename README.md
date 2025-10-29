@@ -43,14 +43,14 @@ Example output:
 
 ## Treasury / Addresses
 
-- BSC Mainnet PeaceFund: {{PEACEFUND_BSC}}
+- BSC Mainnet PeaceFund: 0x6bfA2878fdC394D771349E29d423244d2Ec82af1
 - BSC Testnet PeaceFund: {{PEACEFUND_BSCTEST}}
 
 ## Mainnet deploy (BSC)
 
 1. Set the repository secrets `RPC_URL_MAINNET` and `PRIVATE_KEY`.
 2. Run **Actions → Deploy PeaceFund (BSC Mainnet)** to trigger the one-click deployment.
-3. After deployment, the workflow records the address in `deployments/bsc.json` and replaces `{{PEACEFUND_BSC}}` in this README and `docs/WHITEPAPER.md`.
+3. After deployment, the workflow records the address in `deployments/bsc.json` and replaces `0x6bfA2878fdC394D771349E29d423244d2Ec82af1` in this README and `docs/WHITEPAPER.md`.
 
 ## Bridge to Frontend
 
