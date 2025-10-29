@@ -35,6 +35,12 @@ Example output:
 { "network":"bsctest", "PeaceSwapRouter":"0x...." }
 ```
 
+## CI Deploy
+
+- Add the `RPC_URL` and `PRIVATE_KEY` repository secrets in GitHub.
+- Trigger **Actions → Deploy PeaceFund (BSC Testnet) → Run workflow** when you need a fresh PeaceFund address.
+- The workflow will compile, deploy, and automatically write the new address back into the docs and `deployments/bsctest.json`.
+
 ## Bridge to Frontend
 
 - Copy addresses into `PeaceDAO-frontend/.env.local`:
