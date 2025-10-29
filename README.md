@@ -1,4 +1,5 @@
 # 🕊️ PeaceDAO Demo
+[![BscScan](https://img.shields.io/badge/BscScan-PeaceFund-363a3f?logo=bscscan&logoColor=white)](https://bscscan.com/address/0x6bfA2878fdC394D771349E29d423244d2Ec82af1)
 **Token-Verified DAO Chat & Governance Prototype**
 
 World Peace DAO explores a token-verified governance framework that brings accountability and structure to decentralized communities.
