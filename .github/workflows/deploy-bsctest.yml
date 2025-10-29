@@ -1,0 +1,57 @@
+name: Deploy PeaceFund (BSC Testnet)
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install
+        run: npm ci || npm i
+
+      - name: Set env
+        run: |
+          echo "RPC_URL=${{ secrets.RPC_URL }}" >> $GITHUB_ENV
+          echo "PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}" >> $GITHUB_ENV
+
+      - name: Compile
+        run: npx hardhat compile
+
+      - name: Deploy PeaceFund to BSC Testnet
+        id: deploy
+        run: |
+          OUT=$(npx hardhat run --network bsctest scripts/deploy_peacefund.ts)
+          echo "$OUT"
+          ADDR=$(echo "$OUT" | tail -n 1 | jq -r '.PeaceFund')
+          echo "PEACEFUND_ADDR=$ADDR" >> $GITHUB_OUTPUT
+
+      - name: Write address into docs and deployments
+        run: |
+          echo "Deployed: ${{ steps.deploy.outputs.PEACEFUND_ADDR }}"
+          for file in docs/WHITEPAPER.md docs/whitepaper.md README.md; do
+            if [ -f "$file" ]; then
+              sed -i "s/{{PEACEFUND_BSCTEST}}/${{ steps.deploy.outputs.PEACEFUND_ADDR }}/g" "$file"
+            fi
+          done
+          mkdir -p deployments
+          if [ -f deployments/bsctest.json ]; then
+            tmp=$(mktemp)
+            jq --arg addr "${{ steps.deploy.outputs.PEACEFUND_ADDR }}" '.PeaceFund = $addr' deployments/bsctest.json > "$tmp" && mv "$tmp" deployments/bsctest.json
+          else
+            printf '{ "network": "bsctest", "PeaceFund": "%s" }\n' "${{ steps.deploy.outputs.PEACEFUND_ADDR }}" > deployments/bsctest.json
+          fi
+
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: "."
+          message: "chore: write PeaceFund BSC Testnet address ${{ steps.deploy.outputs.PEACEFUND_ADDR }}"
