@@ -71,9 +71,29 @@ async function main() {
   console.log("PeaceGate deployed at", await gate.getAddress());
 
   const PeaceDAO = await ethers.getContractFactory("PeaceDAO");
-  const dao = await PeaceDAO.deploy(tokenAddress, await gate.getAddress(), await fund.getAddress());
+  const dao = await PeaceDAO.deploy(tokenAddress);
   await dao.waitForDeployment();
   console.log("PeaceDAO deployed at", await dao.getAddress());
+
+  const Treasury = await ethers.getContractFactory("Treasury");
+  const treasury = await Treasury.deploy(await dao.getAddress());
+  await treasury.waitForDeployment();
+  console.log("Treasury deployed at", await treasury.getAddress());
+
+  const setTreasuryTx = await dao.setTreasury(await treasury.getAddress());
+  await setTreasuryTx.wait();
+  console.log("PeaceDAO treasury set to", await treasury.getAddress());
+
+  const quorum = ethers.parseEther("1000000");
+  const passRatioBps = 6000;
+  const minValidatorLikes = 50;
+  const paramsTx = await dao.setGovernanceParams(quorum, passRatioBps, minValidatorLikes);
+  await paramsTx.wait();
+  console.log("PeaceDAO governance params set", {
+    quorum: quorum.toString(),
+    passRatioBps,
+    minValidatorLikes,
+  });
 
   const PeaceSwapFeeCollector = await ethers.getContractFactory("PeaceSwapFeeCollector");
   const feeCollector = await PeaceSwapFeeCollector.deploy(
