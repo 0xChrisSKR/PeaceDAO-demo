@@ -1,52 +1,52 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {IGovernance} from "./interfaces/IGovernance.sol";
-import {IERC20} from "./interfaces/IERC20.sol";
+/**
+ * @title Treasury
+ * @notice Handles DAO treasury funds. Only the governance contract
+ *         can trigger fund transfers through proposals.
+ */
 
-interface IGovernanceExecutable extends IGovernance {
-    function markProposalExecuted(uint256 proposalId) external;
+interface IGovernanceExecutable {
+    function executeProposal(uint256 proposalId) external;
 }
 
-abstract contract ReentrancyGuard {
-    uint256 private constant _NOT_ENTERED = 1;
-    uint256 private constant _ENTERED = 2;
-    uint256 private _status;
+contract Treasury {
+    address public governance;
+    mapping(address => uint256) public balances;
 
-    constructor() {
-        _status = _NOT_ENTERED;
-    }
+    event FundsReceived(address indexed from, uint256 amount);
+    event FundsSent(address indexed to, uint256 amount);
+    event GovernanceUpdated(address indexed oldGov, address indexed newGov);
 
-    modifier nonReentrant() {
-        require(_status != _ENTERED, "reentrant");
-        _status = _ENTERED;
+    modifier onlyGovernance() {
+        require(msg.sender == governance, "Not governance");
         _;
-        _status = _NOT_ENTERED;
     }
-}
-
-contract Treasury is ReentrancyGuard {
-    address public immutable governance;
 
     constructor(address _governance) {
-        require(_governance != address(0), "governance=0");
+        require(_governance != address(0), "Invalid governance");
         governance = _governance;
     }
 
-    receive() external payable {}
+    receive() external payable {
+        emit FundsReceived(msg.sender, msg.value);
+    }
 
-    function executePayout(uint256 proposalId) external nonReentrant {
-        IGovernanceExecutable gov = IGovernanceExecutable(governance);
-        require(gov.isExecutable(proposalId), "Not executable");
-        (address token, address payable to, uint256 amount) = gov.getApprovedPayout(proposalId);
+    function sendFunds(address payable _to, uint256 _amount) external onlyGovernance {
+        require(address(this).balance >= _amount, "Insufficient funds");
+        (bool success, ) = _to.call{value: _amount}("");
+        require(success, "Transfer failed");
+        emit FundsSent(_to, _amount);
+    }
 
-        if (token == address(0)) {
-            (bool ok, ) = to.call{value: amount}("");
-            require(ok, "Native transfer failed");
-        } else {
-            require(IERC20(token).transfer(to, amount), "ERC20 transfer failed");
-        }
+    function updateGovernance(address _newGovernance) external onlyGovernance {
+        require(_newGovernance != address(0), "Invalid address");
+        emit GovernanceUpdated(governance, _newGovernance);
+        governance = _newGovernance;
+    }
 
-        gov.markProposalExecuted(proposalId);
+    function getBalance() external view returns (uint256) {
+        return address(this).balance;
     }
 }
