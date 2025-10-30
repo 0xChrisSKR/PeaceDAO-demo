@@ -9,6 +9,9 @@ pragma solidity ^0.8.20;
 
 import {IGovernance} from "./interfaces/IGovernance.sol";
 
+/**
+ * @dev Extends governance functionality with an executable proposal hook.
+ */
 interface IGovernanceExecutable is IGovernance {
     function executeProposal(uint256 proposalId) external;
 }
