@@ -11,8 +11,8 @@ World Peace DAO explores a token-verified governance framework that brings accou
 - PeaceFund (BSC): 0x071B1baf97D85a70A6Ca786E7Fe90b45f50464e5
 - Guild: https://guild.xyz/world-peace-dao
 - Whitepaper: [docs/WHITEPAPER.md](docs/WHITEPAPER.md)
-- Frontend Repo: https://github.com/peacebuild/PeaceDAO-frontend
-- Demo Repo: https://github.com/peacebuild/PeaceDAO-demo
+- Frontend Repo: https://github.com/0xChrisSKR/PeaceDAO-frontend
+- Demo Repo: https://github.com/0xChrisSKR/PeaceDAO-demo
 
 ## Vision
 
@@ -81,9 +81,9 @@ Example output:
 
 ## Repositories & Documentation
 
-- [Smart Contracts (this repo)](https://github.com/peacebuild/PeaceDAO-demo)
+- [Smart Contracts (this repo)](https://github.com/0xChrisSKR/PeaceDAO-demo)
 - [Whitepaper](docs/whitepaper.md)
-- [PeaceDAO Governance Toolkit](https://github.com/peacebuild)
+- [PeaceDAO Governance Toolkit](https://github.com/0xChrisSKR)
 
 ## Community / 社群
 
@@ -94,7 +94,7 @@ Example output:
 > 經驗證的 DAO 成員將自動獲得 **和平大使 (Peace Ambassador)** 身分，並可獲得未來 DAO 發行的 **貢獻 NFT 勳章**。
 
 - Twitter: [@0xChris_SKR](https://twitter.com/0xChris_SKR) & [$世界和平](https://twitter.com/search?q=%24世界和平&src=typed_query)
-- GitHub: [peacebuild](https://github.com/peacebuild)
+- GitHub: [0xChrisSKR](https://github.com/0xChrisSKR)
 
 ## License
 
