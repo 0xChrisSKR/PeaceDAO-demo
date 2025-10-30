@@ -72,11 +72,17 @@ This document consolidates all setup and deployment instructions for the PeaceDA
 
 - After execution, the deploy script prints contract addresses for record keeping and front-end integration.
 - Use the logged addresses to verify contracts on BscScan and configure PeaceDAO front-ends or tooling.
+- To sync the latest deployment into the public frontend, run `tools/import-addresses-abis.sh` from this repo root. The helper
+  writes `src/config/addresses.local.ts` plus ABI exports under `src/abis/` in the `PeaceDAO-frontend` project and can be tuned via
+  `CHAIN_ID`, `FRONTEND_DIR`, or `CONTRACTS` environment variables.
 
 **中文**
 
 - 部署完成後，指令會列出所有合約位址，請妥善備註並提供給前端或營運團隊使用。
 - 可使用這些位址於 BscScan 進行合約驗證，並設定 PeaceDAO 前端或自動化工具。
+- 若需將最新部署同步到對外前端，可在此儲存庫根目錄執行 `tools/import-addresses-abis.sh`。腳本會寫入
+  `PeaceDAO-frontend` 專案中的 `src/config/addresses.local.ts` 與 `src/abis/*.ts`，亦可透過 `CHAIN_ID`、`FRONTEND_DIR`、
+  `CONTRACTS` 環境變數自訂參數。
 
 ## 6. Collaboration / 協作
 
