@@ -10,14 +10,10 @@
 - Donations in BNB; governance token $世界和平 (0x4444def5cf226bf50aa4b45e5748b676945bc509)
 
 ## Contracts & Addresses
-
 **Network:** BNB Chain (BSC Mainnet)
-
 - **PeaceFund (Treasury):** `0x071B1baf97D85a70A6Ca786E7Fe90b45f50464e5`
 - **Explorer:** https://bscscan.com/address/0x071B1baf97D85a70A6Ca786E7Fe90b45f50464e5
-
-> Testnet addresses are published in `deployments/bsctest.json` when CI deploys to BSCTest.
-> Mainnet redeploy (via GitHub Actions) will automatically update this address in `README.md` and this Whitepaper.
+> Testnet addresses are published in `deployments/bsctest.json`. Mainnet redeploy (via GitHub Actions) will automatically update this address in README and this Whitepaper.
 
 ## Membership & Community Links
 
