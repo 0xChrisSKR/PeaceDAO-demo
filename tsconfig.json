@@ -9,7 +9,19 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist",
-    "types": ["node", "mocha"]
+    "types": [
+      "node",
+      "mocha"
+    ],
+    "jsx": "preserve",
+    "allowJs": true,
+    "baseUrl": "."
   },
-  "include": ["./scripts", "./test", "./hardhat.config.ts"]
+  "include": [
+    "./hardhat.config.ts",
+    "./scripts",
+    "./test",
+    "next-env.d.ts",
+    "src/**/*"
+  ]
 }
