@@ -1,25 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "./IGovernance.sol";
-
-interface IERC20Meta {
-    function balanceOf(address) external view returns (uint256);
-    function totalSupply() external view returns (uint256);
-}
-
-interface IFund {
-    function transferNative(address to, uint256 amount, uint256 proposalId) external;
-    function balance() external view returns (uint256);
-}
+import {IGovernance} from "./interfaces/IGovernance.sol";
+import {IERC20} from "./interfaces/IERC20.sol";
 
 contract Ownable {
     address public owner;
 
-    event OwnershipTransferred(address indexed from, address indexed to);
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     constructor() {
         owner = msg.sender;
+        emit OwnershipTransferred(address(0), msg.sender);
     }
 
     modifier onlyOwner() {
@@ -35,207 +27,227 @@ contract Ownable {
 }
 
 contract PeaceDAO is Ownable, IGovernance {
-    IERC20Meta public immutable token;
-    IFund public immutable fund;
 
-    uint256 public MIN_TOKENS_PROPOSE = 1_000_000 ether;
-    uint256 public MIN_TOKENS_VOTE = 200_000 ether;
-    uint256 public MIN_TOKENS_VALIDATE = 15_000 ether;
+    uint256 public constant CREATE_THRESHOLD = 1_000_000 ether;
+    uint256 public constant VOTE_THRESHOLD = 200_000 ether;
+    uint256 public constant VALIDATOR_THRESHOLD = 15_000 ether;
 
-    uint256 public quorumBps = 1_000;
-    uint256 public passRatioBps = 6_000;
-    uint256 public likeRatioBps = 5_500;
+    IERC20 public immutable token;
+    address public treasury;
+
+    uint256 public quorum;
+    uint256 public passRatioBps;
+    uint256 public minValidatorLikes;
+
+    struct Payout {
+        address token;
+        address payable to;
+        uint256 amount;
+    }
 
     struct Proposal {
-        uint256 id;
         address proposer;
-        address payable recipient;
-        string title;
-        string description;
-        uint256 startTime;
-        uint256 endTime;
+        uint64 startTs;
+        uint64 endTs;
+        Payout payout;
+        bool finalized;
+        bool passed;
+        bool executed;
         uint256 forVotes;
         uint256 againstVotes;
-        uint256 abstainVotes;
-        uint256 validatorLikes;
-        uint256 validatorDislikes;
-        bool executed;
-        mapping(address => bool) hasVoted;
-        mapping(address => bool) hasValidated;
     }
 
     uint256 public proposalCount;
-    mapping(uint256 => Proposal) private _proposals;
-    mapping(uint256 => bool) private _finalized;
-    mapping(uint256 => bool) private _passed;
+    mapping(uint256 => Proposal) private proposals;
+    mapping(uint256 => mapping(address => bool)) public hasVoted;
+    mapping(uint256 => mapping(address => bool)) public hasValidated;
+    mapping(uint256 => mapping(address => uint256)) public stakeOf;
+    mapping(uint256 => uint256) public likeCount;
+    mapping(uint256 => uint256) public dislikeCount;
 
-    event ThresholdsUpdated(uint256 proposeThreshold, uint256 voteThreshold, uint256 validateThreshold);
-    event GovernanceParamsUpdated(uint256 quorumBps, uint256 passRatioBps, uint256 likeRatioBps);
-
-    constructor(address token_, address fund_) {
-        require(token_ != address(0) && fund_ != address(0), "zero");
-        token = IERC20Meta(token_);
-        fund = IFund(fund_);
-    }
-
-    modifier validProposal(uint256 id) {
-        require(id > 0 && id <= proposalCount, "invalid id");
-        _;
-    }
-
-    function setThresholds(uint256 proposeThreshold, uint256 voteThreshold, uint256 validateThreshold) external onlyOwner {
-        MIN_TOKENS_PROPOSE = proposeThreshold;
-        MIN_TOKENS_VOTE = voteThreshold;
-        MIN_TOKENS_VALIDATE = validateThreshold;
-        emit ThresholdsUpdated(proposeThreshold, voteThreshold, validateThreshold);
-    }
-
-    function setGovernParams(uint256 quorumBps_, uint256 passRatioBps_, uint256 likeRatioBps_) external onlyOwner {
-        require(quorumBps_ <= 10_000, "quorum too high");
-        require(passRatioBps_ <= 10_000, "pass too high");
-        require(likeRatioBps_ <= 10_000, "like too high");
-        quorumBps = quorumBps_;
-        passRatioBps = passRatioBps_;
-        likeRatioBps = likeRatioBps_;
-        emit GovernanceParamsUpdated(quorumBps_, passRatioBps_, likeRatioBps_);
-    }
-
-    function createProposal(
+    event TreasurySet(address indexed treasury);
+    event GovernanceParamsUpdated(uint256 quorum, uint256 passRatioBps, uint256 minValidatorLikes);
+    event ProposalCreated(
+        uint256 indexed id,
+        address indexed proposer,
+        address indexed payoutToken,
         address payable recipient,
-        string calldata title,
-        string calldata description,
-        uint256 votingPeriod
-    ) external override returns (uint256 id) {
-        require(recipient != address(0), "recipient=0");
-        require(votingPeriod > 0, "votingPeriod=0");
-        require(token.balanceOf(msg.sender) >= MIN_TOKENS_PROPOSE, "insufficient proposer balance");
+        uint256 amount,
+        uint256 startTs,
+        uint256 endTs
+    );
+    event VoteCast(uint256 indexed id, address indexed voter, bool support, uint256 stakeAmount);
+    event ValidationCast(uint256 indexed id, address indexed validator, bool likeIt);
+    event ProposalFinalized(
+        uint256 indexed id,
+        bool passed,
+        uint256 forVotes,
+        uint256 againstVotes,
+        uint256 likes,
+        uint256 dislikes
+    );
+    event StakeClaimed(uint256 indexed id, address indexed voter, uint256 amount);
+    event ProposalExecuted(uint256 indexed id);
+
+    constructor(address token_) {
+        require(token_ != address(0), "token=0");
+        token = IERC20(token_);
+
+        quorum = 1_000_000 ether;
+        passRatioBps = 6_000;
+        minValidatorLikes = 50;
+    }
+
+    function setTreasury(address treasury_) external onlyOwner {
+        require(treasury_ != address(0), "treasury=0");
+        require(treasury == address(0), "treasury set");
+        treasury = treasury_;
+        emit TreasurySet(treasury_);
+    }
+
+    function setGovernanceParams(
+        uint256 quorum_,
+        uint256 passRatioBps_,
+        uint256 minValidatorLikes_
+    ) external onlyOwner {
+        require(passRatioBps_ <= 10_000, "ratio too high");
+        quorum = quorum_;
+        passRatioBps = passRatioBps_;
+        minValidatorLikes = minValidatorLikes_;
+        emit GovernanceParamsUpdated(quorum_, passRatioBps_, minValidatorLikes_);
+    }
+
+    function proposePayout(address payoutToken, address payable to, uint256 amount)
+        external
+        returns (uint256 id)
+    {
+        require(token.balanceOf(msg.sender) >= CREATE_THRESHOLD, "need 1,000,000 to propose");
+        require(to != address(0), "recipient=0");
 
         id = ++proposalCount;
-        Proposal storage p = _proposals[id];
-        p.id = id;
+        Proposal storage p = proposals[id];
         p.proposer = msg.sender;
-        p.recipient = recipient;
-        p.title = title;
-        p.description = description;
-        p.startTime = block.timestamp;
-        p.endTime = p.startTime + votingPeriod;
+        p.startTs = uint64(block.timestamp);
+        p.endTs = uint64(block.timestamp + 1 days);
+        p.payout = Payout({token: payoutToken, to: to, amount: amount});
 
-        emit ProposalCreated(id, msg.sender, recipient, title, description, p.startTime, p.endTime);
+        emit ProposalCreated(id, msg.sender, payoutToken, to, amount, p.startTs, p.endTs);
     }
 
-    function vote(uint256 id, VoteType support, string calldata reason) external override validProposal(id) {
-        Proposal storage p = _proposals[id];
-        require(block.timestamp >= p.startTime && block.timestamp <= p.endTime, "voting closed");
-        require(!p.hasVoted[msg.sender], "already voted");
+    function vote(uint256 id, bool support, uint256 stakeAmount) external {
+        Proposal storage p = _proposal(id);
+        require(block.timestamp >= p.startTs, "not started");
+        require(block.timestamp < p.endTs, "voting closed");
+        require(!hasVoted[id][msg.sender], "already voted");
+        require(stakeAmount >= VOTE_THRESHOLD, "stake too low");
 
-        uint256 weight = token.balanceOf(msg.sender);
-        require(weight >= MIN_TOKENS_VOTE, "insufficient voter balance");
+        hasVoted[id][msg.sender] = true;
+        stakeOf[id][msg.sender] = stakeAmount;
 
-        p.hasVoted[msg.sender] = true;
+        require(token.transferFrom(msg.sender, address(this), stakeAmount), "transferFrom failed");
 
-        if (support == VoteType.For) {
-            p.forVotes += weight;
-        } else if (support == VoteType.Against) {
-            p.againstVotes += weight;
+        if (support) {
+            p.forVotes += stakeAmount;
         } else {
-            p.abstainVotes += weight;
+            p.againstVotes += stakeAmount;
         }
 
-        emit VoteCast(id, msg.sender, support, weight, reason);
+        emit VoteCast(id, msg.sender, support, stakeAmount);
     }
 
-    function validate(uint256 id, bool likeIt) external override validProposal(id) {
-        Proposal storage p = _proposals[id];
-        require(block.timestamp > p.endTime, "voting not ended");
-        require(!_finalized[id], "finalized");
-        require(!p.hasValidated[msg.sender], "already validated");
-        require(token.balanceOf(msg.sender) >= MIN_TOKENS_VALIDATE, "insufficient validator balance");
+    function validate(uint256 id, bool likeIt) external {
+        Proposal storage p = _proposal(id);
+        require(block.timestamp >= p.startTs, "not started");
+        require(block.timestamp < p.endTs, "validation closed");
+        require(!hasValidated[id][msg.sender], "already validated");
+        require(token.balanceOf(msg.sender) >= VALIDATOR_THRESHOLD, "need 15,000 to validate");
 
-        p.hasValidated[msg.sender] = true;
+        hasValidated[id][msg.sender] = true;
         if (likeIt) {
-            p.validatorLikes += 1;
+            likeCount[id] += 1;
         } else {
-            p.validatorDislikes += 1;
+            dislikeCount[id] += 1;
         }
 
         emit ValidationCast(id, msg.sender, likeIt);
     }
 
-    function finalize(uint256 id) external override validProposal(id) {
-        Proposal storage p = _proposals[id];
-        require(block.timestamp > p.endTime, "voting not ended");
-        require(!_finalized[id], "finalized");
+    function finalize(uint256 id) external {
+        Proposal storage p = _proposal(id);
+        require(block.timestamp >= p.endTs, "voting not ended");
+        require(!p.finalized, "finalized");
 
-        uint256 totalVotes = p.forVotes + p.againstVotes + p.abstainVotes;
-        uint256 totalSupply = token.totalSupply();
-        bool reachedQuorum = totalSupply == 0
-            ? false
-            : totalVotes * 10_000 >= totalSupply * quorumBps;
+        uint256 totalVotes = p.forVotes + p.againstVotes;
+        bool reachedQuorum = totalVotes >= quorum;
+        bool reachedPass = totalVotes > 0 && p.forVotes * 10_000 >= passRatioBps * totalVotes;
+        bool validatorsOk = likeCount[id] >= minValidatorLikes && likeCount[id] >= dislikeCount[id];
 
-        uint256 countedVotes = p.forVotes + p.againstVotes;
-        bool reachedPass = countedVotes > 0
-            && p.forVotes * 10_000 >= passRatioBps * countedVotes;
+        p.finalized = true;
+        p.passed = reachedQuorum && reachedPass && validatorsOk;
 
-        uint256 validationVotes = p.validatorLikes + p.validatorDislikes;
-        bool reachedLike = validationVotes > 0
-            && p.validatorLikes * 10_000 >= likeRatioBps * validationVotes;
-
-        bool passed = reachedQuorum && reachedPass && reachedLike;
-        _finalized[id] = true;
-        _passed[id] = passed;
-
-        emit ProposalFinalized(id, passed, p.forVotes, p.againstVotes, p.abstainVotes, p.validatorLikes, p.validatorDislikes);
+        emit ProposalFinalized(id, p.passed, p.forVotes, p.againstVotes, likeCount[id], dislikeCount[id]);
     }
 
-    function executeDonation(uint256 id) external override validProposal(id) {
-        Proposal storage p = _proposals[id];
-        require(_finalized[id], "not finalized");
-        require(_passed[id], "not passed");
+    function claimStake(uint256 id) external {
+        Proposal storage p = _proposal(id);
+        require(block.timestamp >= p.endTs, "voting not ended");
+
+        uint256 amount = stakeOf[id][msg.sender];
+        require(amount > 0, "no stake");
+        stakeOf[id][msg.sender] = 0;
+
+        require(token.transfer(msg.sender, amount), "transfer failed");
+        emit StakeClaimed(id, msg.sender, amount);
+    }
+
+    function markProposalExecuted(uint256 id) external {
+        require(msg.sender == treasury, "only treasury");
+        Proposal storage p = _proposal(id);
+        require(p.finalized && p.passed, "not approved");
         require(!p.executed, "executed");
-
-        uint256 amount = fund.balance();
-        require(amount > 0, "no funds");
-
         p.executed = true;
-        fund.transferNative(p.recipient, amount, id);
-
-        emit DonationExecuted(id, p.recipient, amount);
+        emit ProposalExecuted(id);
     }
 
-    function getProposal(uint256 id) external view override validProposal(id) returns (ProposalView memory view_) {
-        Proposal storage p = _proposals[id];
-        view_ = ProposalView({
-            id: p.id,
+    function isExecutable(uint256 id) external view override returns (bool) {
+        Proposal storage p = _proposal(id);
+        return p.finalized && p.passed && !p.executed;
+    }
+
+    function getApprovedPayout(uint256 id)
+        external
+        view
+        override
+        returns (address token_, address payable to, uint256 amount)
+    {
+        Proposal storage p = _proposal(id);
+        require(p.finalized && p.passed, "not approved");
+        token_ = p.payout.token;
+        to = p.payout.to;
+        amount = p.payout.amount;
+    }
+
+    function getProposal(uint256 id)
+        external
+        view
+        returns (Proposal memory proposal_)
+    {
+        Proposal storage p = _proposal(id);
+        proposal_ = Proposal({
             proposer: p.proposer,
-            recipient: p.recipient,
-            title: p.title,
-            description: p.description,
-            startTime: p.startTime,
-            endTime: p.endTime,
+            startTs: p.startTs,
+            endTs: p.endTs,
+            payout: p.payout,
+            finalized: p.finalized,
+            passed: p.passed,
+            executed: p.executed,
             forVotes: p.forVotes,
-            againstVotes: p.againstVotes,
-            abstainVotes: p.abstainVotes,
-            validatorLikes: p.validatorLikes,
-            validatorDislikes: p.validatorDislikes,
-            finalized: _finalized[id],
-            passed: _passed[id],
-            executed: p.executed
+            againstVotes: p.againstVotes
         });
     }
 
-    function hasVoted(uint256 id, address account) external view override validProposal(id) returns (bool) {
-        return _proposals[id].hasVoted[account];
-    }
-
-    function hasValidated(uint256 id, address account) external view override validProposal(id) returns (bool) {
-        return _proposals[id].hasValidated[account];
-    }
-
-    function proposalFinalized(uint256 id) external view override validProposal(id) returns (bool) {
-        return _finalized[id];
-    }
-
-    function proposalPassed(uint256 id) external view override validProposal(id) returns (bool) {
-        return _passed[id];
+    function _proposal(uint256 id) internal view returns (Proposal storage p) {
+        require(id > 0 && id <= proposalCount, "invalid id");
+        p = proposals[id];
     }
 }
