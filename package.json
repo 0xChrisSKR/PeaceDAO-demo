@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build": "hardhat compile",
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "export-abi": "ts-node scripts/export-abi.ts"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
