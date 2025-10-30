@@ -7,7 +7,9 @@ pragma solidity ^0.8.20;
  *         can trigger fund transfers through proposals.
  */
 
-interface IGovernanceExecutable {
+import {IGovernance} from "./interfaces/IGovernance.sol";
+
+interface IGovernanceExecutable is IGovernance {
     function executeProposal(uint256 proposalId) external;
 }
 
