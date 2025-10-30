@@ -1,3 +1,4 @@
+import webpack from 'webpack';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -14,18 +15,26 @@ const nextConfig = {
     localeDetection: false
   },
   webpack: (config) => {
+    config.resolve = config.resolve || {};
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
       net: false,
-      tls: false
+      tls: false,
     };
     config.resolve.alias = {
       ...config.resolve.alias,
       'pino-pretty': false,
-      '@react-native-async-storage/async-storage': false
+      '@react-native-async-storage/async-storage': false,
     };
+    config.plugins = config.plugins || [];
+    config.plugins.push(
+      new webpack.ProvidePlugin({
+        process: 'process/browser',
+        Buffer: ['buffer', 'Buffer'],
+      })
+    );
     return config;
-  }
+  },
 };
 export default nextConfig;
