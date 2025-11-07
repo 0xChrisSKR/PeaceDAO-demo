@@ -7,6 +7,12 @@
     "test": "hardhat test",
     "deploy:bsctest": "hardhat run scripts/deploy.ts --network bsctest"
   },
+  "dependencies": {
+    "@wagmi/core": "2.22.1",
+    "wagmi": "2.22.1",
+    "viem": "2.21.15",
+    "@web3modal/wagmi": "4.1.6"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "dotenv": "^16.4.5",
